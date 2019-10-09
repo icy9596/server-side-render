@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 
 import { actions } from '../store';
 
+import styles from '../Home.less';
+
 class Home extends React.Component {
 
     componentDidMount() {
@@ -12,7 +14,7 @@ class Home extends React.Component {
     render() {
         const { list } = this.props;
         return (
-            <div>
+            <div className={ styles['home'] }>
                 <p>'HOME PAGE'</p>
                 <ul>
                     {

@@ -29,6 +29,7 @@ const render = (req, store) => {
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
             <link rel="icon" href="/public/favicon.ico" type="image/x-icon" />
             <title>server render</title>
+            <link rel="stylesheet" href="/public/client/main.css"></link>
             <script>
                 window.preloadState = ${ JSON.stringify(store.getState()) }
             </script>
