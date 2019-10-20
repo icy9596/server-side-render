@@ -2,25 +2,28 @@ import express from 'express';
 import path from 'path';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
-import { StaticRouter, Route } from 'react-router-dom';
+import { StaticRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { matchRoutes, renderRoutes } from 'react-router-config';
+import { matchRoutes } from 'react-router-config';
 import proxy from 'express-http-proxy';
 
-import { routes, createStore, sourceServerUrl } from '@/config';
+import { createStore, sourceServerUrl, routeConfigure } from '@/config';
 import axios from './request';
 
+const { renderRoutes, routes } = routeConfigure;
+
 const app = express();
-const render = (req, store) => {
+const render = (req, res, store) => {
+    const context = {};
     const app = renderToString(
         <Provider store={ store }>
-            <StaticRouter location={ req.url }>
+            <StaticRouter location={ req.url } context={ context }>
                 { renderRoutes(routes) }
             </StaticRouter>
         </Provider>
     );
 
-    return `
+    const html = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -41,7 +44,15 @@ const render = (req, store) => {
             <script src="/public/client/client.js"></script>
         </body>
         </html>
-    `
+    `;
+
+    if (context.status === 404) {
+        res.status(404).send(html);
+    } else if (context.status === 301 || context.status === 302) {
+        res.redirect(context.status, context.url);
+    } else {
+        res.send(html);
+    }
 }
 
 // 静态文件
@@ -61,7 +72,7 @@ app.use('/', (req, res) => {
     const promise = [];
 
     matchedRoutes.forEach(item => item.route.loadData && promise.push(store.dispatch(item.route.loadData())));
-    Promise.all(promise).then(() => res.send(render(req, store)));
+    Promise.all(promise).then(() => render(req, res, store));
 });
 
 app.listen(8080, () => {

@@ -20,7 +20,7 @@ module.exports = {
                     options: {
                         presets: [['@babel/preset-env', {
                             targets: {
-                                browsers: ['last 2 versions']
+                                browsers: ['last 2 versions'],
                             }
                         }], '@babel/preset-react']
                     }
